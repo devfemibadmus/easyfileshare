@@ -1,0 +1,4 @@
+django
+flask
+google-cloud-secret-manager
+google-cloud-storage

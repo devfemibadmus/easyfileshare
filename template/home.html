@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #drawing-container {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+            width: 100vw;
+            background-color: #87CEEB; /* Sky blue background */
+        }
+
+        .cloud-particle {
+            position: absolute;
+            width: 50px;
+            height: 30px;
+            background-image: url('https://pngimg.com/uploads/cloud/cloud_PNG15.png');
+            background-size: cover;
+        }
+
+        .upload-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #3498db;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+    <div id="drawing-container"></div>
+    <div class="upload-button" onclick="handleUpload()">Upload</div>
+
+    <script>
+        "use strict";
+        var W, H;
+        var C = {
+            x: 0,
+            y: 0
+        };
+        var particles = [], touch = false;
+        var particleCount = 0; // Initial particle count
+
+        const { random } = Math;
+
+        function id(n) {
+            return document.getElementById(n);
+        }
+
+        function handleUpload() {
+            // Handle the upload logic here
+            alert("Upload button clicked!");
+        }
+
+        window.onload = function () {
+            var drawingContainer = id("drawing-container");
+            function init() {
+                W = drawingContainer.clientWidth;
+                H = drawingContainer.clientHeight;
+            }
+            init();
+            window.onresize = init;
+
+            function move(e) {
+                C.x = e.clientX;
+                C.y = e.clientY;
+                if (!C.x) {
+                    C.x = e.touches[0].clientX;
+                    C.y = e.touches[0].clientY;
+                }
+                touch = true;
+            }
+            drawingContainer.addEventListener("touchmove", move);
+            drawingContainer.addEventListener("touchstart", move);
+            drawingContainer.addEventListener("touchend", function () {
+                touch = false;
+            });
+            drawingContainer.addEventListener("mousedown", function () {
+                drawingContainer.addEventListener("mousemove", move);
+            });
+            drawingContainer.addEventListener("mouseup", function () {
+                drawingContainer.removeEventListener("mousemove", move);
+                touch = false;
+            });
+
+            function CloudParticle() {
+                this.x = W * random();
+                this.y = H * random();
+                this.dx = 1 * random() + 1; // Cloud particle speed
+                this.dy = 0;
+                this.element = document.createElement("div");
+                this.element.className = "cloud-particle";
+                drawingContainer.appendChild(this.element);
+
+                this.draw = function () {
+                    this.x += this.dx;
+
+                    if (this.x > W) {
+                        this.x = -50; // Move cloud particle to the left when it goes off the screen
+                    }
+
+                    this.element.style.left = this.x + "px";
+                    this.element.style.top = this.y + "px";
+                };
+            }
+
+            function addCloudParticles(count) {
+                for (let i = 0; i < count; i++) {
+                    let cloud = new CloudParticle();
+                    particles.push(cloud);
+                }
+                particleCount += count;
+                if (particleCount > 10) {
+                    particleCount = 10;
+                }
+            }
+
+            function animate() {
+                for (let cloud of particles) {
+                    cloud.draw();
+                }
+                window.requestAnimationFrame(animate);
+            }
+
+            // Add cloud particles every 2 seconds
+            setInterval(function () {
+                addCloudParticles(1);
+            }, 2000);
+
+            animate();
+        };
+    </script>
+</body>
+</html>

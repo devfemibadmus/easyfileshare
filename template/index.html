@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easy File Share</title>
+</head>
+<body>
+    <h1>Easy File Share</h1>
+    <div id="message-container"></div>
+    <div id="file-list"></div>
+    {% csrf_token %}
+
+    <input type="file" id="file-input">
+    <button onclick="uploadFile()">Upload</button>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        // Function to fetch and display user files
+        function loadUserFiles() {
+            $.ajax({
+                type: 'GET',
+                url: '/get_user_files/',
+                success: function (data) {
+                    console.log('User files:', data.files);
+                    updateFileList(data.files);
+                },
+                error: function () {
+                    alert('Error fetching user files.');
+                }
+            });
+        }
+
+        // Function to update the file list on the page
+        function updateFileList(files) {
+            var fileListContainer = $('#file-list');
+            fileListContainer.empty();
+
+            if (files.length > 0) {
+                var fileList = $('<ul></ul>');
+                files.forEach(function (file) {
+                    var listItem = $('<li></li>').text(file.url);
+                    fileList.append(listItem);
+                    var listItemlink = $('<li></li>').text(file.shareable_link);
+                    fileList.append(listItemlink);
+                });
+                fileListContainer.append(fileList);
+            } else {
+                fileListContainer.text('No files found.');
+            }
+        }
+
+        // Function to handle file upload
+        function uploadFile() {
+            var formData = new FormData();
+            formData.append('file', $('#file-input')[0].files[0]);
+            formData.append('csrfmiddlewaretoken', $('[name=csrfmiddlewaretoken]').val());
+            $.ajax({
+                type: 'POST',
+                url: '/file_upload/',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    console.log('File uploaded successfully');
+                    alert(data.message)
+                    displayMessage(data.message);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error uploading file:', error);
+                    displayMessage('Error uploading file.', 'error');
+                }
+            });
+        }
+
+        // Function to display messages on the page
+        function displayMessage(message, messageType = 'success') {
+            var messageContainer = $('#message-container');
+            messageContainer.text(message);
+
+            if (messageType === 'error') {
+                messageContainer.css('color', 'red');
+            } else {
+                messageContainer.css('color', 'green');
+            }
+
+            // Clear the message after a few seconds
+            setTimeout(function () {
+                messageContainer.empty().removeAttr('style');
+            }, 5000);
+        }
+
+        // Call loadUserFiles when the page loads
+        loadUserFiles();
+    </script>
+</body>
+</html>
