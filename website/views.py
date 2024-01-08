@@ -24,9 +24,10 @@ def file_upload(request):
         try:
             user = request.user if request.user.is_authenticated else None
             file_upload = request.FILES.get('file')
+            print(file_upload.size)
             
             # Check if the file is empty
-            if file_upload.size == 0:
+            if file_upload.size <= 0:
                 raise ValueError("File is empty.")
 
             # Check if the file size is greater than 400 MB
@@ -46,6 +47,7 @@ def file_upload(request):
 
             return JsonResponse({'success': True, 'message': 'File uploaded successfully', 'shareable_link': file_manager.shareable_link.hex})
         except Exception as e:
+            print((e))
             return JsonResponse({'success': False, 'message': str(e)})
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method'})
