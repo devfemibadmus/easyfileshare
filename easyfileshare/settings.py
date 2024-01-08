@@ -2,13 +2,8 @@ from pathlib import Path
 import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-ON_APP_ENGINE = os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/')
-
-print("ON APP: ", ON_APP_ENGINE)
-
 project_id = 'easyfileshare.uc.r.appspot.com'
-DEBUG = not ON_APP_ENGINE
+DEBUG = True
 
 def get_secret(secret_name):
     client = secretmanager.SecretManagerServiceClient()
