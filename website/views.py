@@ -15,7 +15,7 @@ def get_user_files(request):
         user_cache_key = cache.get(request.session.session_key)
         files = FileManager.objects.filter(user_cache_key=user_cache_key)
 
-    file_data = [{'url': file_manager.file_upload.url, 'shareable_link': file_manager.shareable_link.hex} for file_manager in files]
+    file_data = [{'url': file_manager.file_upload.name, 'shareable_link': file_manager.shareable_link.hex} for file_manager in files]
     return JsonResponse({'files': file_data})
 
 
@@ -25,9 +25,14 @@ def file_upload(request):
             user = request.user if request.user.is_authenticated else None
             file_upload = request.FILES.get('file')
             
-            # Add your custom validation logic here
-            if file_upload.size > 10 * 1024 * 1024:  # 10 MB
-                raise ValueError("File size should be less than 10 MB.")
+            # Check if the file is empty
+            if file_upload.size == 0:
+                raise ValueError("File is empty.")
+
+            # Check if the file size is greater than 400 MB
+            max_file_size = 100 * 1024 * 1024  # 400 MB
+            if file_upload.size > max_file_size:
+                raise ValueError("File size should be less than 400 MB.")
             
             # You can add more custom validation logic here if needed
 
@@ -44,6 +49,8 @@ def file_upload(request):
             return JsonResponse({'success': False, 'message': str(e)})
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+
 
 def file_delete(request, shareable_link):
     if request.user.is_authenticated:

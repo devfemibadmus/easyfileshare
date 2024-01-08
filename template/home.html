@@ -3,55 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        #drawing-container {
-            position: relative;
-            height: 100vh;
-            overflow: hidden;
-            width: 100vw;
-            background-color: #87CEEB; /* Sky blue background */
-        }
-
-        .cloud-particle {
-            position: absolute;
-            width: 50px;
-            height: 30px;
-            background-image: url('https://pngimg.com/uploads/cloud/cloud_PNG15.png');
-            background-size: cover;
-        }
-
-        .upload-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background-color: #3498db;
-            color: #fff;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s ease-in-out;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-    </style>
+    <title>Easy File Share</title>
 </head>
-<body>
-    <div id="drawing-container"></div>
-    <div class="upload-button" onclick="handleUpload()">Upload</div>
+<style>
+    /* For WebKit-based browsers (e.g., Chrome, Safari) */
+::-webkit-scrollbar {
+    display: none;
+}
 
+/* For Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+
+/* For Microsoft Edge */
+* {
+    -ms-overflow-style: none;
+}
+
+    body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    #drawing-container {
+        position: relative;
+        height: 100vh;
+        overflow: hidden;
+        width: 100vw;
+        background-color: #87CEEB; /* Sky blue background */
+    }
+
+    .cloud-particle {
+        position: absolute;
+        width: 50px;
+        height: 30px;
+        background-image: url('https://pngimg.com/uploads/cloud/cloud_PNG15.png');
+        background-size: cover;
+    }
+   .tooltip {
+   position: relative;
+   display: inline-block;
+   }
+   .tooltip .tooltiptext {
+   visibility: hidden;
+   width: 140px;
+   background-color: #555;
+   color: #fff;
+   text-align: center;
+   border-radius: 6px;
+   padding: 5px;
+   position: absolute;
+   z-index: 1;
+   bottom: 150%;
+   left: 50%;
+   margin-left: -75px;
+   opacity: 0;
+   transition: opacity 0.3s;
+   }
+   .tooltip .tooltiptext::after {
+   content: "";
+   position: absolute;
+   top: 100%;
+   left: 50%;
+   margin-left: -5px;
+   border-width: 5px;
+   border-style: solid;
+   border-color: #555 transparent transparent transparent;
+   }
+   .tooltip:hover .tooltiptext {
+   visibility: visible;
+   opacity: 1;
+   }
+   li{
+    padding-top:15px;
+   }
+   input{
+    border:none;
+    text-overflow:ellipsis;
+   }
+   .pd{
+    margin-bottom: 20px;
+   }
+   .container{
+    z-index:999;
+   }.container-sm {
+    height: auto;
+    max-height: 80vh;
+    margin-bottom: 10px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    width: 90vw;
+    max-width: 500px; /* Adjust the width as needed */
+}
+
+@media screen and (max-width: 767px) {
+    .container-sm {
+        max-width: 90vw;
+    }
+}
+
+@media screen and (min-width: 768px) and (max-width: 991px) {
+    .container-sm {
+        max-width: 80vw;
+    }
+}
+
+@media screen and (min-width: 992px) {
+    .container-sm {
+        max-width: 60vw;
+    }
+}
+
+ol{
+    width:100%;
+    max-width:100%;
+}
+   input{
+    width:80%;
+   }
+   input .delete,
+   input .tooltip{
+    width:10%;
+   }
+   .container li input {
+    width: 50%;
+    max-width: 50%;
+}
+
+.container li .tooltip {
+    width: 25%;
+}
+.container li .delete{
+    width: 15%;
+}
+</style>
+<body id="drawing-container">
+    <div class="container">
+        <div id="message-container"></div>
+        <input type="file" id="file-input" class="pd">
+        <button onclick="uploadFile()" class="pd">Upload</button>
+        <div class="container-sm" id="file-list">
+        </div>
+    </div>
+    {% csrf_token %}
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        // Function to fetch and display user files
+        function loadUserFiles() {
+            $.ajax({
+                type: 'GET',
+                url: '/get_user_files/',
+                success: function (data) {
+                    console.log('User files:', data.files);
+                    updateFileList(data.files);
+                },
+                error: function () {
+                    alert('Error fetching user files.');
+                }
+            });
+        }
+
+        // Function to update the file list on the page
+        function updateFileList(files) {
+            var fileListContainer = $('#file-list');
+            fileListContainer.empty();
+            files.reverse();
+            if (files.length > 0) {
+                var fileList = $('<ol reversed ></ol>');
+                files.forEach(function (file) {
+                    var listItem = `
+                    <li>
+                        <input type="text" value="${file.url}" disabled id="myInput">
+                        <div class="tooltip">
+                            <button onclick="copyLink('${file.shareable_link}')" onmouseout="outFunc('${file.shareable_link}')">
+                             <span class="tooltiptext" id="${file.shareable_link}tooltip">Copy to clipboard</span>
+                            Copy link
+                            </button>
+                        </div>
+                        <button class="delete" onclick="Delete('${file.shareable_link}delete')">Delete</button>
+                    </li>`
+                    fileList.append(listItem);
+                });
+                fileListContainer.append(fileList);
+            } else {
+                fileListContainer.text('No files found.');
+            }
+        }
+
+        // Function to handle file upload
+        function uploadFile() {
+            var formData = new FormData();
+            formData.append('file', $('#file-input')[0].files[0]);
+            formData.append('csrfmiddlewaretoken', $('[name=csrfmiddlewaretoken]').val());
+            $.ajax({
+                type: 'POST',
+                url: '/file_upload/',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    $("#file-input").val("");
+                    console.log('File uploaded successfully');
+                    displayMessage(data.message, data.success);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error uploading file:', error);
+                    displayMessage('Error uploading file.', false);
+                }
+            });
+        }
+
+        // Function to display messages on the page
+        function displayMessage(message, success) {
+            var messageContainer = $('#message-container');
+            messageContainer.text(message);
+
+            if (!success) {
+                messageContainer.css('color', 'red');
+                loadUserFiles();
+            } else {
+                messageContainer.css('color', 'green');
+                loadUserFiles();
+            }
+
+            // Clear the message after a few seconds
+            setTimeout(function () {
+                messageContainer.empty().removeAttr('style');
+            }, 5000);
+        }
+        
+        // Function to copy shareable_link
+        function copyLink(shareable_link) {
+          navigator.clipboard.writeText(window.location.href+"view_file/"+shareable_link);
+          
+          var tooltip = document.getElementById(shareable_link+"tooltip");
+          tooltip.innerHTML = "Copied!";
+        }
+        
+        // Function to display tooltip
+        function outFunc(id) {
+          var tooltip = document.getElementById(id+"tooltip");
+          tooltip.innerHTML = "Copy to clipboard";
+        }
+        
+        // Call loadUserFiles when the page loads
+        loadUserFiles();
+    </script>
     <script>
         "use strict";
         var W, H;
@@ -153,3 +355,5 @@
     </script>
 </body>
 </html>
+
+
