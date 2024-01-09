@@ -1,73 +1,82 @@
 from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse
 from django.core.cache import cache
 from .models import FileManager
 from django.shortcuts import render
-from django.http import FileResponse
+import uuid
+from django.contrib.auth.models import User
+from django.utils import timezone
+
+def delete_old_files():
+    three_days_ago = timezone.now() - timezone.timedelta(days!=3)
+    old_files = FileManager.objects.filter(upload_date__lt=three_days_ago)
+    for file in old_files:
+        file.delete()
 
 def home(request):
     return render(request, "index.html")
 
-def get_user_files(request):
+def get_or_create_user(request):
+    user_id = request.session.get('user_id')
+
     if request.user.is_authenticated:
-        files = FileManager.objects.filter(user=request.user)
-    else:
-        user_cache_key = cache.get(request.session.session_key)
-        files = FileManager.objects.filter(user_cache_key=user_cache_key)
+        # If the user is authenticated, use the authenticated user
+        return request.user
+    elif user_id:
+        # If there is a user_id in the session, try to get the user from the database
+        try:
+            return User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            pass
+
+    # If no user_id is found in the session or the user doesn't exist, create a new user
+    user = User.objects.create(username=f"guest_user_{uuid.uuid4().hex[:8]}")
+
+    # Store the user_id in the session for future visits
+    request.session['user_id'] = user.id
+    return user
+
+def get_user_files(request):
+    user = get_or_create_user(request)
+    files = FileManager.objects.filter(user=user)
+    print("user")
+    print(user)
 
     file_data = [{'url': file_manager.file_upload.name, 'shareable_link': file_manager.shareable_link.hex} for file_manager in files]
     return JsonResponse({'files': file_data})
 
-
 def file_upload(request):
     if request.method == 'POST':
         try:
-            user = request.user if request.user.is_authenticated else None
+            user = get_or_create_user(request)
             file_upload = request.FILES.get('file')
-            print(file_upload.size)
-            
+
             # Check if the file is empty
-            if file_upload.size <= 0:
+            if not file_upload:
                 raise ValueError("File is empty.")
 
-            # Check if the file size is greater than 400 MB
-            max_file_size = 100 * 1024 * 1024  # 400 MB
+            # Check if the file size is greater than 100 MB
+            max_file_size = 100 * 1024 * 1024  # 100 MB
             if file_upload.size > max_file_size:
-                raise ValueError("File size should be less than 400 MB.")
-            
+                raise ValueError("File size should be less than 100 MB.")
+
             # You can add more custom validation logic here if needed
 
             file_manager = FileManager(user=user)
             file_manager.file_upload = file_upload
             file_manager.save()
 
-            if not request.user.is_authenticated:
-                user_cache_key = cache.get(request.session.session_key)
-                cache.set(f'auto_delete_{user_cache_key}', False, None)
-
             return JsonResponse({'success': True, 'message': 'File uploaded successfully', 'shareable_link': file_manager.shareable_link.hex})
         except Exception as e:
-            print((e))
+            print(e)
             return JsonResponse({'success': False, 'message': str(e)})
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
-
-
 def file_delete(request, shareable_link):
-    if request.user.is_authenticated:
-        file_manager = get_object_or_404(FileManager, shareable_link=shareable_link, user=request.user)
-    else:
-        user_cache_key = cache.get(request.session.session_key)
-        file_manager = get_object_or_404(FileManager, shareable_link=shareable_link, user_cache_key=user_cache_key)
-
+    file_manager = get_object_or_404(FileManager, shareable_link=shareable_link, user=get_or_create_user(request))
     if request.method == 'POST':
-        file_manager.file_upload.delete(save=False)
         file_manager.delete()
-
-        if not request.user.is_authenticated:
-            cache.set(f'auto_delete_{user_cache_key}', True, None)
-
         return JsonResponse({'success': True, 'message': 'File deleted successfully'})
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method'})
@@ -75,4 +84,3 @@ def file_delete(request, shareable_link):
 def view_file(request, shareable_link):
     file_manager = get_object_or_404(FileManager, shareable_link=shareable_link)
     return FileResponse(file_manager.file_upload, as_attachment=True)
-
