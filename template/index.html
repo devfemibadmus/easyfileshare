@@ -172,7 +172,7 @@
                      var displayedIndex = files.length - index;
          
                      var listItem = `
-                         <li id="${displayedIndex}Container">
+                         <li id="${file.shareable_link}Container">
                              <div class="filename">${displayedIndex}. ${file.url}</div>
                              <div class="btns">
                                  <div class="tooltip">
@@ -198,6 +198,7 @@
              var formData = new FormData();
              formData.append('file', $('#file-input')[0].files[0]);
              formData.append('csrfmiddlewaretoken', $('[name=csrfmiddlewaretoken]').val());
+             displayMessage("Uploading...", "")
              $.ajax({
                  type: 'POST',
                  url: '/file_upload/',
@@ -242,8 +243,8 @@
          function displayMessage(message, success) {
              var messageContainer = $('#message-container');
              messageContainer.text(message);
-         
-             if (!success) {
+             if(success == ""){
+            } else if (!success) {
                  messageContainer.css('color', 'red');
                  loadUserFiles();
              } else {
@@ -254,7 +255,7 @@
              // Clear the message after a few seconds
              setTimeout(function () {
                  messageContainer.empty().removeAttr('style');
-             }, 5000);
+             }, 2000);
          }
          
          // Function to copy shareable_link
