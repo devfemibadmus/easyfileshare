@@ -1,22 +1,25 @@
 from pathlib import Path
 import os
+from google.cloud import secretmanager  # Import the necessary module
+from google.auth import exceptions
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-project_id = 'easyfileshare.uc.r.appspot.com'
 DEBUG = True
+PRODUCTION = False
 
 def get_secret(secret_name):
     client = secretmanager.SecretManagerServiceClient()
-    name = f"projects/{project_id}/secrets/{secret_name}/versions/latest"
+    name = f"projects/easyfileshare/secrets/{secret_name}/versions/latest"
     response = client.access_secret_version(name=name)
     return response.payload.data.decode('UTF-8')
 
-if DEBUG:
+if not PRODUCTION:
     SECRET_KEY = 'random23454k01*(&*^()(&%^-development-secret-key'
     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 else:
     SECRET_KEY = get_secret('DJANGO_SECRET_KEY')
-    ALLOWED_HOSTS = [project_id]
+    ALLOWED_HOSTS = ['easyfileshare.uc.r.appspot.com']
 
 
 INSTALLED_APPS = [
@@ -63,24 +66,22 @@ WSGI_APPLICATION = 'easyfileshare.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-if not DEBUG:
-    GS_DB_BUCKET_NAME = get_secret("GS_DB_BUCKET_NAME")
-    GS_DATABASE_PATH = get_secret("GS_DATABASE_PATH")
-
-    DATABASES = {
-        'default': {
-            'ENGINE': 'storages.backends.gcloud.GoogleCloudStorage',
-            'NAME': f'{GS_DB_BUCKET_NAME}/{GS_DATABASE_PATH}',
-        }
-    }
-else:
+if PRODUCTION:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-
+else:
+    # DATABASES = get_secret(DATABASES_CONF)
+    # not turning this on bcus of its cost
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -108,8 +109,12 @@ USE_I18N = True
 USE_TZ = True
 
 
-if not DEBUG and ON_APP_ENGINE:
+if not PRODUCTION:
+    import google.auth
+    import json
+    from google.oauth2 import service_account
     GS_BUCKET_NAME = get_secret("GS_BUCKET_NAME")
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(os.path.join(BASE_DIR, "easyfileshare-4a6b12feee1a.json"))
     STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
     MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/media/'
     STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
@@ -117,7 +122,6 @@ if not DEBUG and ON_APP_ENGINE:
     GS_OBJECT_CACHE_CONTROL = {
         'static/*': 'public, max-age=3600',
         'media/*': 'public, max-age=0, no-cache, no-store, must-revalidate',
-        f'{GS_DATABASE_PATH}': 'no-store, no-cache, must-revalidate',
     }
 else:
     STATIC_URL = '/static/'
