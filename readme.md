@@ -50,7 +50,7 @@ Feel free to reach out if you have any questions or feedback regarding the migra
 
 ## Usage
 ### Note: shut down for now 1/10/2024
-1. Visit the deployed EasyFileShare application at https://easyfileshare.uc.r.appspot.com
+1. Visit the deployed EasyFileShare application website
 
 2. Upload files and instantly receive unique shareable links.
 
@@ -58,7 +58,7 @@ Feel free to reach out if you have any questions or feedback regarding the migra
 
 ## Additional Resources
 
-For more details about the migration process, code examples, or to contribute to the project, please refer to the [devfemibadmus/python-daily](https://github.com/devfemibadmus/python-daily) and [devfemibadmus/python-daily/tree/master/gcloud](devfemibadmus/python-daily/tree/master/gcloud) files.
+For more details about the migration process, code examples, or to contribute to the project, please refer to the [devfemibadmus/python-daily](https://github.com/devfemibadmus/python-daily) and [devfemibadmus/python-daily/tree/master/gcloud](https://devfemibadmus/python-daily/tree/master/gcloud) files.
 
 ## License
 
@@ -66,4 +66,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## About
 
-EasyFileShare is developed and maintained by [devfemibadmus](github.com/devfemibadmus). For any inquiries, please contact devfemibadmus@example.com
+EasyFileShare is developed and maintained by [devfemibadmus](https://github.com/devfemibadmus). For any inquiries, please contact devfemibadmus@example.com
