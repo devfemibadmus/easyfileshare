@@ -48,8 +48,8 @@ Explore the sample usage video above to see how EasyFileShare works in action. T
 Feel free to reach out if you have any questions or feedback regarding the migration or the application's usage.
 
 ## Usage
-
-1. Visit the deployed EasyFileShare application at [your-app-url].
+### Note: shut down for now 1/10/2024
+1. Visit the deployed EasyFileShare application at easyfileshare.uc.r.appspot.com/.
 
 2. Upload files and instantly receive unique shareable links.
 
