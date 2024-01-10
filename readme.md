@@ -58,7 +58,7 @@ Feel free to reach out if you have any questions or feedback regarding the migra
 
 ## Additional Resources
 
-For more details about the migration process, code examples, or to contribute to the project, please refer to the [devfemibadmus/python-daily](https://github.com/devfemibadmus/python-daily) and [devfemibadmus/python-daily/tree/master/gcloud](https://devfemibadmus/python-daily/tree/master/gcloud) files.
+For more details about the migration process, code examples, or to contribute to the project, please refer to the [devfemibadmus/python-daily](https://github.com/devfemibadmus/python-daily) and [devfemibadmus/python-daily/tree/master/gcloud](https://github.com/devfemibadmus/python-daily/tree/master/gcloud) files.
 
 ## License
 
