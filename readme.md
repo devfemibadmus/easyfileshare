@@ -32,7 +32,7 @@ EasyFileShare prioritizes security to ensure user data and files are protected:
 
 ## Migration to Flask and Lightweight Database
 
-[![Migration Plan](readme/Screenshot%20(1055).png)](Deleted Instance)
+![Migration Plan](readme/Screenshot%20(1055).png)(Deleted Instance)
 
 The above image indicates the migration plan for EasyFileShare. As part of our ongoing efforts to enhance the application's efficiency and reduce resource usage, we have decided to migrate from Google Cloud SQL to a more lightweight Flask framework and a secure, lightweight database.
 
@@ -40,7 +40,7 @@ This transition aims to streamline the application, making it more responsive an
 
 ## Sample Usage
 
-[![Sample Usage Video](readme/easyfileshare%20-%20Made%20with%20Clipchamp.mp4?raw=true)](easyfileshare - Made with Clipchamp.mp4)
+![Sample Usage Video](readme/easyfileshare%20-%20Made%20with%20Clipchamp.mp4?raw=true)(easyfileshare - Made with Clipchamp.mp4)
 
 Explore the sample usage video above to see how EasyFileShare works in action. This video provides a walkthrough of the website, showcasing how users can effortlessly upload files, generate shareable links, and manage their files with ease.
 
