@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 class FileManager(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    file_upload = models.FileField(upload_to='')
+    file_upload = models.FileField(upload_to='media/')
     shareable_link = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     upload_date = models.DateTimeField(default=timezone.now)
 

@@ -42,7 +42,7 @@ def get_user_files(request):
     print("user")
     print(user)
 
-    file_data = [{'url': file_manager.file_upload.name, 'shareable_link': file_manager.shareable_link.hex} for file_manager in files]
+    file_data = [{'url': file_manager.file_upload.name.replace('media/',''), 'shareable_link': file_manager.shareable_link.hex} for file_manager in files]
     return JsonResponse({'files': file_data})
 
 def file_upload(request):
