@@ -40,8 +40,6 @@ This transition aims to streamline the application, making it more responsive an
 
 ## Sample Usage
 
-<video src="readme/easyfileshare%20-%20Made%20with%20Clipchamp.mp4" alt="easyfileshare - Made with Clipchamp.mp4"\>
-
 Explore the sample usage video above to see how EasyFileShare works in action. This video provides a walkthrough of the website, showcasing how users can effortlessly upload files, generate shareable links, and manage their files with ease.
 
 Feel free to reach out if you have any questions or feedback regarding the migration or the application's usage.
