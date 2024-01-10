@@ -14,12 +14,12 @@ def get_secret(secret_name):
     response = client.access_secret_version(name=name)
     return response.payload.data.decode('UTF-8')
 
-if not PRODUCTION:
-    SECRET_KEY = 'random23454k01*(&*^()(&%^-development-secret-key'
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-else:
+if PRODUCTION:
     SECRET_KEY = get_secret('DJANGO_SECRET_KEY')
     ALLOWED_HOSTS = ['easyfileshare.uc.r.appspot.com']
+else:
+    SECRET_KEY = 'random23454k01*(&*^()(&%^-development-secret-key'
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 INSTALLED_APPS = [
@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'website',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -69,17 +70,21 @@ WSGI_APPLICATION = 'easyfileshare.wsgi.application'
 if PRODUCTION:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'ENGINE': 'django.db.backends.postgresql',
+            'HOST': get_secret('DB_HOST'),
+            'NAME': get_secret('DB_NAME'),
+            'USER': get_secret('DB_USER'),
+            'PASSWORD': get_secret('DB_PASSWORD'),
         }
     }
 else:
-    # DATABASES = get_secret(DATABASES_CONF)
-    # not turning this on bcus of its cost
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'ENGINE': 'django.db.backends.postgresql',
+            'HOST': get_secret('DB_HOST_IP'),
+            'NAME': get_secret('DB_NAME'),
+            'USER': get_secret('DB_USER'),
+            'PASSWORD': get_secret('DB_PASSWORD'),
         }
     }
 
@@ -108,28 +113,30 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-if not PRODUCTION:
-    import google.auth
-    import json
+MEDIA_URL = '/media/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'staticfiles'),
+]
+if PRODUCTION:
+    import google.auth, json
     from google.oauth2 import service_account
+
     GS_BUCKET_NAME = get_secret("GS_BUCKET_NAME")
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(os.path.join(BASE_DIR, "easyfileshare-4a6b12feee1a.json"))
-    STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
-    MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/media/'
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(os.path.join(BASE_DIR, get_secret("GS_CREDENTIALS")))
+
     STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-    GS_OBJECT_CACHE_CONTROL = {
-        'static/*': 'public, max-age=3600',
-        'media/*': 'public, max-age=0, no-cache, no-store, must-revalidate',
+    GS_OBJECT_PARAMETERS = {
+        'CacheControl': 'max-age=86400',
+        'prefix': 'admin/*',
+    }
+    GS_OBJECT_PARAMETERS_2 = {
+        'CacheControl': 'max-age=0, no-cache, no-store, must-revalidate',
+        'prefix': 'media/*',
     }
 else:
-    STATIC_URL = '/static/'
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-    STATICFILES_DIRS = [
-        os.path.join(BASE_DIR, 'staticfiles'),
-    ]
-    MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
