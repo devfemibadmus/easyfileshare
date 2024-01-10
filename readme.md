@@ -40,7 +40,8 @@ This transition aims to streamline the application, making it more responsive an
 
 ## Sample Usage
 
-![Sample Usage Video](readme/easyfileshare%20-%20Made%20with%20Clipchamp.gif?raw=true)
+![Sample Usage GIF 1](readme/easyfileshare_usage1%20-%20Made%20with%20Clipchamp.gif?raw=true)
+![Sample Usage GIF 2](readme/easyfileshare_usage2%20-%20Made%20with%20Clipchamp.gif?raw=true)
 
 Explore the sample usage video above to see how EasyFileShare works in action. This video provides a walkthrough of the website, showcasing how users can effortlessly upload files, generate shareable links, and manage their files with ease.
 
