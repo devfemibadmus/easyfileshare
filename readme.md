@@ -1,6 +1,6 @@
 # EasyFileShare
 
-EasyFileShare is a lightweight Django web application hosted on Google App Engine that simplifies file sharing without the need for user accounts. Leveraging the security of Google Cloud Storage, EasyFileShare provides a seamless and secure file-sharing experience.
+EasyFileShare is a lightweight Python web application hosted on Google App Engine that simplifies file sharing without the need for user accounts. Leveraging the security of Google Cloud Storage, EasyFileShare provides a seamless and secure file-sharing experience.
 
 ## Features
 
@@ -40,8 +40,9 @@ This transition aims to streamline the application, making it more responsive an
 
 ## Sample Usage
 
-![Sample Usage GIF 1](readme/easyfileshare_usage1%20-%20Made%20with%20Clipchamp.gif?raw=true)
-![Sample Usage GIF 2](readme/easyfileshare_usage2%20-%20Made%20with%20Clipchamp.gif?raw=true)
+https://github.com/devfemibadmus/easyfileshare/assets/84607331/dc6c3fd0-47af-4804-9134-1bdcff4d4545
+
+https://github.com/devfemibadmus/easyfileshare/assets/84607331/e956656e-695d-4a5c-9c2e-30d07b6bae50
 
 Explore the sample usage video above to see how EasyFileShare works in action. This video provides a walkthrough of the website, showcasing how users can effortlessly upload files, generate shareable links, and manage their files with ease.
 
@@ -49,7 +50,7 @@ Feel free to reach out if you have any questions or feedback regarding the migra
 
 ## Usage
 ### Note: shut down for now 1/10/2024
-1. Visit the deployed EasyFileShare application at easyfileshare.uc.r.appspot.com/.
+1. Visit the deployed EasyFileShare application at https://easyfileshare.uc.r.appspot.com
 
 2. Upload files and instantly receive unique shareable links.
 
