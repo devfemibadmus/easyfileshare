@@ -1,25 +1,16 @@
 from pathlib import Path
 import os
-from google.cloud import secretmanager  # Import the necessary module
-from google.auth import exceptions
-
-BASE_DIR = Path(__file__).resolve().parent.parent
+from pathlib import Path
 
 DEBUG = True
 PRODUCTION = False
 
-def get_secret(secret_name):
-    client = secretmanager.SecretManagerServiceClient()
-    name = f"projects/easyfileshare/secrets/{secret_name}/versions/latest"
-    response = client.access_secret_version(name=name)
-    return response.payload.data.decode('UTF-8')
+from decouple import config, Csv
 
-if PRODUCTION:
-    SECRET_KEY = get_secret('DJANGO_SECRET_KEY')
-    ALLOWED_HOSTS = ['easyfileshare.uc.r.appspot.com']
-else:
-    SECRET_KEY = 'random23454k01*(&*^()(&%^-development-secret-key'
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+SECRET_KEY = config('SECRET_KEY', 'random23454k01*(&*^()(&%^-development-secret-key')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', '*').split(',')
 
 
 INSTALLED_APPS = [
@@ -63,30 +54,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'easyfileshare.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
-if PRODUCTION:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'HOST': get_secret('DB_HOST'),
-            'NAME': get_secret('DB_NAME'),
-            'USER': get_secret('DB_USER'),
-            'PASSWORD': get_secret('DB_PASSWORD'),
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': config('DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': config('DB_NAME', BASE_DIR / "db.sqlite3"),
+        'USER': config('DB_USER', ''),
+        'PASSWORD': config('DB_PASSWORD', ''),
+        'HOST': config('DB_HOST', ''),
+        'PORT': config('DB_PORT', ''),
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'HOST': get_secret('DB_HOST_IP'),
-            'NAME': get_secret('DB_NAME'),
-            'USER': get_secret('DB_USER'),
-            'PASSWORD': get_secret('DB_PASSWORD'),
-        }
-    }
+}
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -104,7 +81,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -118,12 +94,13 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'staticfiles'),
 ]
+
 if PRODUCTION:
     import google.auth, json
     from google.oauth2 import service_account
 
-    GS_BUCKET_NAME = get_secret("GS_BUCKET_NAME")
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(os.path.join(BASE_DIR, get_secret("GS_CREDENTIALS")))
+    GS_BUCKET_NAME = "easyfileshare"
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(os.path.join(BASE_DIR, "blackstackhub.json"))
 
     STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
@@ -141,3 +118,4 @@ else:
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
