@@ -1,5 +1,4 @@
 django==4.0.4
-google-cloud-secret-manager
 google-cloud-storage
 psycopg2
 django-storages
