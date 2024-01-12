@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 DEBUG = True
-PRODUCTION = False
+PRODUCTION = True
 
 from decouple import config, Csv
 
@@ -107,10 +107,6 @@ if PRODUCTION:
     GS_OBJECT_PARAMETERS = {
         'CacheControl': 'max-age=86400',
         'prefix': 'admin/*',
-    }
-    GS_OBJECT_PARAMETERS_2 = {
-        'CacheControl': 'max-age=0, no-cache, no-store, must-revalidate',
-        'prefix': 'media/*',
     }
 else:
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
