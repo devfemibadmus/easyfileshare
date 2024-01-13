@@ -42,7 +42,7 @@ def home():
 def get_user_files():
     user_id = request.cookies.get('user_id', str(uuid.uuid4()))
     print(user_id)
-    
+ 
     user_files_cookie = request.cookies.get('user_files', '[]')
     user_files = json.loads(user_files_cookie)
     file_data = [{'url': file_info['file_name'], 'shareable_link': file_info['shareable_link']} for file_info in user_files]
@@ -147,6 +147,9 @@ def download_file(file_url, file_name):
 @app.route('/<path:path>')
 def catch_all(path):
     return render_template("lost.html")
-    
+
+"""
 if __name__ == '__main__':
     app.run(debug=True)
+"""
+application = app
