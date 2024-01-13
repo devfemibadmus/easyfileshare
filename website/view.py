@@ -1,32 +1,34 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
-
+from django.utils import timezone
+import uuid
 from google.cloud import storage
 from easyfileshare.settings import BASE_DIR
-import requests, os, json, uuid
+import requests
+import os
 
 class CloudStorageManager:
     def __init__(self):
         self.storage_client = storage.Client.from_service_account_json(os.path.join(BASE_DIR, "blackstackhub.json"))
         self.bucket = self.storage_client.bucket('easyfileshare')
 
-    def upload_file(self, file_upload, user_id):
+    def upload_file(self, file_upload):
         if file_upload:
-            blob = self.bucket.blob("files/" + user_id + "/" + file_upload.name)
+            blob = self.bucket.blob("files/" + file_upload.name)
             blob.upload_from_file(file_upload.file)
             return True
         return False
 
-    def get_signed_url(self, file_name, user_id, expiration=300):
+    def get_signed_url(self, file_name, expiration=300):
         if file_name:
-            blob = self.bucket.blob("files/" + user_id + "/" + file_name)
+            blob = self.bucket.blob("files/" + file_name)
             signed_url = blob.generate_signed_url(expiration=expiration, version='v4')
             return signed_url
         return False
 
-    def delete_file(self, file_name, user_id):
+    def delete_file(self, file_name):
         if file_name:
-            blob = self.bucket.blob("files/" + user_id + "/" + file_name)
+            blob = self.bucket.blob("files/" + file_name)
             blob.delete()
             return True
         return False
@@ -37,19 +39,17 @@ def home(request):
     return render(request, "index.html")
 
 def get_or_create_user(request):
-    user_id = request.COOKIES.get('user_id')
-
+    user_id = request.session.get('user_id')
+    
     if not user_id:
         user_id = str(uuid.uuid4())
-        response = HttpResponse()
-        response.set_cookie('user_id', user_id)
+        request.session['user_id'] = user_id
 
     return user_id
 
 def get_user_files(request):
     user_id = get_or_create_user(request)
-    user_files_cookie = request.COOKIES.get('user_files', '[]')
-    user_files = json.loads(user_files_cookie)
+    user_files = request.session.get('user_files', [])
     file_data = [{'url': file_info['file_name'], 'shareable_link': file_info['shareable_link']} for file_info in user_files]
     return JsonResponse({'files': file_data})
 
@@ -65,23 +65,21 @@ def file_upload(request):
                 raise ValueError("File size should be less than 100 MB.")
 
             # Upload the file to Google Cloud Storage
-            if manager.upload_file(file_upload, user_id):
-                # Update user_files in cookies
-                user_files_cookie = request.COOKIES.get('user_files', '[]')
-                user_files = json.loads(user_files_cookie)
+            if manager.upload_file(file_upload):
+                # Update user_files in session
+                user_files = request.session.get('user_files', [])
                 file_info = {
                     'file_name': file_upload.name,
                     'shareable_link': str(uuid.uuid4())
                 }
                 user_files.append(file_info)
-                user_files_cookie = json.dumps(user_files)
-                response = JsonResponse({
+                request.session['user_files'] = user_files
+
+                return JsonResponse({
                     'success': True,
                     'message': 'File uploaded successfully',
                     'shareable_link': file_info['shareable_link']
                 })
-                response.set_cookie('user_files', user_files_cookie)
-                return response
 
         except Exception as e:
             print(e)
@@ -90,19 +88,19 @@ def file_upload(request):
         return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
 def file_delete(request, shareable_link):
-    user_id = get_or_create_user(request)  # Ensure you get the user_id
-
-    user_files_cookie = request.COOKIES.get('user_files', '[]')
-    user_files = json.loads(user_files_cookie)
+    user_files = request.session.get('user_files', [])
 
     for file_info in user_files:
         if file_info['shareable_link'] == shareable_link:
-            manager.delete_file(file_info['file_name'], user_id)
+            # Delete the file from Google Cloud Storage
+            manager.delete_file(file_info['file_name'])
+
+            # Remove the file information from user_files
             user_files.remove(file_info)
-            user_files_cookie = json.dumps(user_files)
-            response = JsonResponse({'success': True, 'message': 'File deleted successfully'})
-            response.set_cookie('user_files', user_files_cookie)
-            return response
+            request.session['user_files'] = user_files
+
+            return JsonResponse({'success': True, 'message': 'File deleted successfully'})
+
     return JsonResponse({'success': False, 'message': 'File not found'})
 
 def download_file(request, file_url, file_name):
@@ -122,12 +120,10 @@ def download_file(request, file_url, file_name):
         return HttpResponse(f"Failed to download file: {str(e)}", status=500)
 
 def download(request, shareable_link):
-    user_files_cookie = request.COOKIES.get('user_files', '[]')
-    user_files = json.loads(user_files_cookie)
+    user_files = request.session.get('user_files', [])
 
     for file_info in user_files:
         if file_info['shareable_link'] == shareable_link:
-            return download_file(request, manager.get_signed_url(file_info['file_name']), file_info['file_name'], user_id)
+            return download_file(request, manager.get_signed_url(file_info['file_name']), file_info['file_name'])
 
     return JsonResponse({'success': False, 'message': 'File not found'})
-

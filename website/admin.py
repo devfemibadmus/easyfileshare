@@ -2,9 +2,9 @@ from django.contrib import admin
 from .models import FileManager
 
 class FileManagerAdmin(admin.ModelAdmin):
-    list_display = ('file_upload', 'user', 'upload_date')
+    list_display = ('file_name', 'user', 'upload_date')
     list_filter = ('upload_date',)
-    search_fields = ('file_upload', 'user__username')
+    search_fields = ('file_name', 'user__username')
 
     def get_ordering(self, request):
         # Default ordering by upload_date in descending order

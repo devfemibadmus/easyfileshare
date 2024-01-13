@@ -20,27 +20,12 @@
       <link rel="icon" href="favicon.ico" type="image/x-icon">
       <link rel="stylesheet" href="{% static 'styles.css' %}">
       <link rel="canonical" href="https://easyfileshare.blackstackhub.com">
-      <style>
-         .cloud-particle {
-            position: absolute;
-            width: 50px;
-            height: 30px;
-            background-image: url("{% static 'easyfileshare.png' %}");
-            background-size: cover;
-         }
-      </style>
    </head>
    <body id="drawing-container">
-      <div class="container">
-         <div id="message-container"></div>
-         <input type="file" id="file-input" class="pd">
-         <button onclick="uploadFile()" class="pd">Upload</button>
-         <div class="container-sm" id="file-list">
-         </div>
+      <div class="container" style="text-align:center;">
+        <h1>404 File Not Found</h1>
+        <a href="/"><h4>Go home</h4></a>
       </div>
-      {% csrf_token %}
-      <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
       <script src="{% static 'script.js' %}"></script>
-      <script src="{% static 'main.js' %}"></script>
    </body>
 </html>

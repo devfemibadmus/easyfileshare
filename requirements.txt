@@ -2,3 +2,4 @@ django==4.0.4
 google-cloud-storage
 psycopg2
 django-storages
+python-decouple

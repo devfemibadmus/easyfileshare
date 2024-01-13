@@ -1,6 +1,5 @@
 from pathlib import Path
 import os
-from pathlib import Path
 
 DEBUG = True
 PRODUCTION = True
@@ -54,6 +53,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'easyfileshare.wsgi.application'
 
+
 DATABASES = {
     'default': {
         'ENGINE': config('DB_ENGINE', 'django.db.backends.sqlite3'),
@@ -94,23 +94,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'staticfiles'),
 ]
-
-if PRODUCTION:
-    import google.auth, json
-    from google.oauth2 import service_account
-
-    GS_BUCKET_NAME = "easyfileshare"
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(os.path.join(BASE_DIR, "blackstackhub.json"))
-
-    STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-    GS_OBJECT_PARAMETERS = {
-        'CacheControl': 'max-age=86400',
-        'prefix': 'admin/*',
-    }
-else:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
