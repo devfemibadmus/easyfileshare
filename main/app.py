@@ -125,7 +125,7 @@ def download(shareable_link):
             file_url = manager.get_signed_url(file_info['file_name'], user_id)
             return download_file(file_url, file_info['file_name'])
 
-    return render_template("404.html")
+    return render_template("lost.html", value="404 File Not Found")
 
 def download_file(file_url, file_name):
     try:
@@ -146,7 +146,7 @@ def download_file(file_url, file_name):
 
 @app.route('/<path:path>')
 def catch_all(path):
-    return render_template("lost.html")
+    return render_template("lost.html", value="You Lost But Found")
 
 """
 if __name__ == '__main__':
