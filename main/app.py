@@ -133,25 +133,22 @@ def download(shareable_link):
     return render_template("lost.html", value="404 File Not Found")
 
 def download_file(file_url, file_name, raw):
-    # print(raw)
-    # print(raw)
-    # print(raw)
+    image_formats = ['.jpg', '.jpeg', '.png']
     try:
         response = requests.get(file_url)
 
         if response.status_code == 200:
-            content_type = response.headers.get('Content-Type', 'application/octet-stream')
-            file_content = response.content
-
-            response = make_response(file_content)
-            response.headers['Content-Type'] = content_type
-            if raw:
+            if raw and file_name.lower().endswith(tuple(image_formats)):
                 img = Image.open(io.BytesIO(requests.get(file_url).content))
                 img_bytes = io.BytesIO()
                 img.save(img_bytes, format='PNG')
                 img_bytes.seek(0)
                 response = Response(img_bytes, mimetype='image/png')
             else:
+                content_type = response.headers.get('Content-Type', 'application/octet-stream')
+                file_content = response.content
+                response = make_response(file_content)
+                response.headers['Content-Type'] = content_type
                 response.headers['Content-Disposition'] = f'attachment; filename="{file_name}"'
             return response
         else:
@@ -164,7 +161,6 @@ def catch_all(path):
     return render_template("lost.html", value="You Lost But Found")
 
 """
-
 if __name__ == '__main__':
     app.run(debug=True)
 """
