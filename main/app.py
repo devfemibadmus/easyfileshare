@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, jsonify, make_response
-import requests, os, json, uuid
-from pathlib import Path
+from flask import Flask, render_template, request, jsonify, make_response, Response
+import requests, os, json, uuid, io
 from google.cloud import storage
+from pathlib import Path
+from PIL import Image
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 app = Flask(__name__, static_url_path='/static')
@@ -18,7 +19,7 @@ class CloudStorageManager:
             return True
         return False
 
-    def get_signed_url(self, file_name, user_id, expiration=300):
+    def get_signed_url(self, file_name, user_id, expiration=604800):
         if file_name:
             blob = self.bucket.blob("files/" + user_id + "/" + file_name)
             signed_url = blob.generate_signed_url(expiration=expiration, version='v4')
@@ -41,7 +42,7 @@ def home():
 @app.route('/get_user_files/')
 def get_user_files():
     user_id = request.cookies.get('user_id', str(uuid.uuid4()))
-    print(user_id)
+    # print(user_id)
  
     user_files_cookie = request.cookies.get('user_files', '[]')
     user_files = json.loads(user_files_cookie)
@@ -88,13 +89,13 @@ def file_upload():
             return response
 
     except Exception as e:
-        print(e)
+        # print(e)
         return jsonify({'success': False, 'message': str(e)})
 
 @app.route('/file_delete/<shareable_link>/', methods=['POST'])
 def file_delete(shareable_link):
     user_id = request.cookies.get('user_id', str(uuid.uuid4()))
-    print(user_id)
+    # print(user_id)
     user_files_cookie = request.cookies.get('user_files', '[]')
     user_files = json.loads(user_files_cookie)
 
@@ -109,7 +110,7 @@ def file_delete(shareable_link):
             response.set_cookie('user_files', user_files_cookie, max_age=max_age_seconds)
             response.set_cookie('user_id', user_id, max_age=max_age_seconds)
 
-            print(response)
+            # print(response)
             return response
 
     return jsonify({'success': False, 'message': 'File not found'})
@@ -117,6 +118,9 @@ def file_delete(shareable_link):
 @app.route('/download/<shareable_link>')
 def download(shareable_link):
     raw = request.args.get('raw', False)
+    # print(raw)
+    # print(raw)
+    # print(raw)
     user_files_cookie = request.cookies.get('user_files', '[]')
     user_files = json.loads(user_files_cookie)
 
@@ -129,6 +133,9 @@ def download(shareable_link):
     return render_template("lost.html", value="404 File Not Found")
 
 def download_file(file_url, file_name, raw):
+    # print(raw)
+    # print(raw)
+    # print(raw)
     try:
         response = requests.get(file_url)
 
@@ -139,7 +146,11 @@ def download_file(file_url, file_name, raw):
             response = make_response(file_content)
             response.headers['Content-Type'] = content_type
             if raw:
-                response.headers['Content-Disposition'] = f'inline; filename="{file_name}"'
+                img = Image.open(io.BytesIO(requests.get(file_url).content))
+                img_bytes = io.BytesIO()
+                img.save(img_bytes, format='PNG')
+                img_bytes.seek(0)
+                response = Response(img_bytes, mimetype='image/png')
             else:
                 response.headers['Content-Disposition'] = f'attachment; filename="{file_name}"'
             return response
@@ -153,6 +164,7 @@ def catch_all(path):
     return render_template("lost.html", value="You Lost But Found")
 
 """
+
 if __name__ == '__main__':
     app.run(debug=True)
 """
