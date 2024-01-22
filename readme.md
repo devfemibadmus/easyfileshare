@@ -15,6 +15,8 @@ EasyFileShare is a lightweight Python web application hosted on Google Compute E
 
 - **File Management:** Users can effortlessly delete files and generate new shareable links through a straightforward interface.
 
+- **Preview Raw Files:** Explore the content of raw files easily by appending `?raw=true` to the file's URL. This feature allows users to preview the raw data directly in their browsers, enhancing the overall accessibility and usability of shared files.
+
 ## Technology Stack
 
 - **Python:** The backend of EasyFileShare is powered by Python, providing a flexible and easy-to-maintain codebase.
