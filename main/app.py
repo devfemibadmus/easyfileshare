@@ -5,7 +5,7 @@ from google.cloud import storage
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 app = Flask(__name__, static_url_path='/static')
-
+max_age_seconds = 30 * 24 * 60 * 60
 class CloudStorageManager:
     def __init__(self):
         self.storage_client = storage.Client.from_service_account_json(os.path.join(BASE_DIR, "blackstackhub.json"))
@@ -49,7 +49,7 @@ def get_user_files():
 
     # Create a response object and set the 'user_files' and 'user_id' cookies
     response = make_response(jsonify({'files': file_data}))
-    response.set_cookie('user_id', user_id)
+    response.set_cookie('user_id', user_id, max_age=max_age_seconds)
 
     return response
 
@@ -82,8 +82,8 @@ def file_upload():
                 'message': 'File uploaded successfully',
                 'shareable_link': file_info['shareable_link']
             }))
-            response.set_cookie('user_files', user_files_cookie)
-            response.set_cookie('user_id', user_id)
+            response.set_cookie('user_files', user_files_cookie, max_age=max_age_seconds)
+            response.set_cookie('user_id', user_id, max_age=max_age_seconds)
 
             return response
 
@@ -106,8 +106,8 @@ def file_delete(shareable_link):
 
             # Create a response object and set the 'user_files' and 'user_id' cookies
             response = make_response(jsonify({'success': True, 'message': 'File deleted successfully'}))
-            response.set_cookie('user_files', user_files_cookie)
-            response.set_cookie('user_id', user_id)
+            response.set_cookie('user_files', user_files_cookie, max_age=max_age_seconds)
+            response.set_cookie('user_id', user_id, max_age=max_age_seconds)
 
             print(response)
             return response
@@ -116,6 +116,7 @@ def file_delete(shareable_link):
 
 @app.route('/download/<shareable_link>')
 def download(shareable_link):
+    raw = request.args.get('raw', False)
     user_files_cookie = request.cookies.get('user_files', '[]')
     user_files = json.loads(user_files_cookie)
 
@@ -123,11 +124,11 @@ def download(shareable_link):
         if file_info['shareable_link'] == shareable_link:
             user_id = file_info['shareable_link'].split("cloudstorage")[0]
             file_url = manager.get_signed_url(file_info['file_name'], user_id)
-            return download_file(file_url, file_info['file_name'])
+            return download_file(file_url, file_info['file_name'], raw)
 
     return render_template("lost.html", value="404 File Not Found")
 
-def download_file(file_url, file_name):
+def download_file(file_url, file_name, raw):
     try:
         response = requests.get(file_url)
 
@@ -137,7 +138,10 @@ def download_file(file_url, file_name):
 
             response = make_response(file_content)
             response.headers['Content-Type'] = content_type
-            response.headers['Content-Disposition'] = f'attachment; filename="{file_name}"'
+            if raw:
+                response.headers['Content-Disposition'] = f'inline; filename="{file_name}"'
+            else:
+                response.headers['Content-Disposition'] = f'attachment; filename="{file_name}"'
             return response
         else:
             return make_response(f"Failed to download file: {response.status_code}", response.status_code)
