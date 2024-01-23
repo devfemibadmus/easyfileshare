@@ -5,7 +5,7 @@ EasyFileShare is a lightweight Python web application hosted on Google Compute E
 
 ## Features
 
-- **User-Friendly File Sharing:** Easily upload files[*] max_file_size = 100 * 1024 * 1024 and receive unique, shareable links instantly. No user accounts required.
+- **User-Friendly File Sharing:** Easily upload files `all` format `max_file_size = 100 * 1024 * 1024` and receive unique, shareable links instantly. No user accounts required.
 
 - **Upload Limit:** Each device is limited to a total upload of 1GB, ensuring fair usage and efficient resource management.
 
