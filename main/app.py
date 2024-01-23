@@ -156,8 +156,8 @@ def download_file(file_url, file_name, raw):
 def catch_all(path):
     return render_template("lost.html", value="You Lost But Found")
 
-
+"""
 if __name__ == '__main__':
     app.run(debug=True)
 """
-application = app"""
+application = app
