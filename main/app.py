@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request, jsonify, make_response, Response
+from flask import Flask, render_template, request, jsonify, make_response, Response, send_file
 import requests, os, json, uuid, io
 from google.cloud import storage
 from pathlib import Path
 from PIL import Image
+from io import BytesIO
+from PIL import Image, ImageDraw
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 app = Flask(__name__, static_url_path='/static')
@@ -72,7 +74,7 @@ def file_upload():
             user_files = json.loads(user_files_cookie)
             file_info = {
                 'file_name': file_upload.filename,
-                'shareable_link': (user_id+"cloudstorage"+str(uuid.uuid4()))
+                'shareable_link': (user_id+"/"+str(file_upload.filename))
             }
             user_files.append(file_info)
             user_files_cookie = json.dumps(user_files)
@@ -115,35 +117,28 @@ def file_delete(shareable_link):
 
     return jsonify({'success': False, 'message': 'File not found'})
 
-@app.route('/download/<shareable_link>')
-def download(shareable_link):
+@app.route('/download/<path:path>')
+def download(path):
     raw = request.args.get('raw', False)
-    # print(raw)
-    # print(raw)
-    # print(raw)
-    user_files_cookie = request.cookies.get('user_files', '[]')
-    user_files = json.loads(user_files_cookie)
-
-    for file_info in user_files:
-        if file_info['shareable_link'] == shareable_link:
-            user_id = file_info['shareable_link'].split("cloudstorage")[0]
-            file_url = manager.get_signed_url(file_info['file_name'], user_id)
-            return download_file(file_url, file_info['file_name'], raw)
-
-    return render_template("lost.html", value="404 File Not Found")
+    user_id = path.split("/")[0]
+    file_name = path.split("/")[1]
+    # print(path)
+    # print(user_id)
+    # print(file_name)
+    try:
+       file_url = manager.get_signed_url(file_name=file_name, user_id=user_id)
+       # print(file_url)
+       return download_file(file_url, file_name, raw)
+    except:
+        return render_template("lost.html", value="404 File Not Found")
 
 def download_file(file_url, file_name, raw):
     image_formats = ['.jpg', '.jpeg', '.png']
     try:
         response = requests.get(file_url)
-
         if response.status_code == 200:
             if raw and file_name.lower().endswith(tuple(image_formats)):
-                img = Image.open(io.BytesIO(requests.get(file_url).content))
-                img_bytes = io.BytesIO()
-                img.save(img_bytes, format='PNG')
-                img_bytes.seek(0)
-                response = Response(img_bytes, mimetype='image/png')
+                response = Response(requests.get(file_url).content, mimetype='image/png')
             else:
                 content_type = response.headers.get('Content-Type', 'application/octet-stream')
                 file_content = response.content
