@@ -48,7 +48,7 @@ def get_user_files():
  
     user_files_cookie = request.cookies.get('user_files', '[]')
     user_files = json.loads(user_files_cookie)
-    file_data = [{'url': file_info['file_name'], 'shareable_link': file_info['shareable_link']} for file_info in user_files]
+    file_data = [{'file_name': file_info['file_name'], 'shareable_link': file_info['shareable_link']} for file_info in user_files]
 
     # Create a response object and set the 'user_files' and 'user_id' cookies
     response = make_response(jsonify({'files': file_data}))
@@ -94,15 +94,15 @@ def file_upload():
         # print(e)
         return jsonify({'success': False, 'message': str(e)})
 
-@app.route('/file_delete/<shareable_link>/', methods=['POST'])
-def file_delete(shareable_link):
+@app.route('/file_delete/<user_id>/<file_name>/', methods=['POST'])
+def file_delete(user_id, file_name):
     user_id = request.cookies.get('user_id', str(uuid.uuid4()))
-    # print(user_id)
+    print(user_id)
     user_files_cookie = request.cookies.get('user_files', '[]')
     user_files = json.loads(user_files_cookie)
 
     for file_info in user_files:
-        if file_info['shareable_link'] == shareable_link:
+        if file_info['shareable_link'] == (user_id+"/"+file_name.replace("/","")):
             manager.delete_file(file_info['file_name'], user_id)
             user_files.remove(file_info)
             user_files_cookie = json.dumps(user_files)
@@ -112,7 +112,7 @@ def file_delete(shareable_link):
             response.set_cookie('user_files', user_files_cookie, max_age=max_age_seconds)
             response.set_cookie('user_id', user_id, max_age=max_age_seconds)
 
-            # print(response)
+            print(response)
             return response
 
     return jsonify({'success': False, 'message': 'File not found'})
@@ -134,6 +134,7 @@ def download(path):
 
 def download_file(file_url, file_name, raw):
     image_formats = ['.jpg', '.jpeg', '.png']
+    video_formats = ['.mp4', '.avi', '.mkv', 'mov'] # coming soon
     try:
         response = requests.get(file_url)
         if response.status_code == 200:
@@ -155,8 +156,8 @@ def download_file(file_url, file_name, raw):
 def catch_all(path):
     return render_template("lost.html", value="You Lost But Found")
 
-"""
+
 if __name__ == '__main__':
     app.run(debug=True)
 """
-application = app
+application = app"""

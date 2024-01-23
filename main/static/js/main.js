@@ -26,16 +26,16 @@ function loadUserFiles() {
           var displayedIndex = files.length - index;
  
           var listItem = `
-                         <li id="${file.shareable_link}Container">
-                             <div class="filename">${displayedIndex}. ${file.url}</div>
+                         <li id="${file.file_name}Container">
+                             <div class="filename">${displayedIndex}. ${file.file_name}</div>
                              <div class="btns">
                                  <div class="tooltip">
-                                     <button onclick="copyLink('${file.shareable_link}')" onmouseout="outFunc('${file.shareable_link}')">
-                                         <span class="tooltiptext" id="${file.shareable_link}tooltip">Copy to clipboard</span>
+                                     <button onclick="copyLink('${file.shareable_link}', '${file.file_name}')" onmouseout="outFunc('${file.file_name}')">
+                                         <span class="tooltiptext" id="${file.file_name}tooltip">Copy to clipboard</span>
                                          Copy link
                                      </button>
                                  </div>
-                                 <button class="delete" onclick="Delete('${file.shareable_link}')">Delete</button>
+                                 <button class="delete" onclick="Delete('${file.shareable_link}', '${file.file_name}')">Delete</button>
                              </div>
                          </li>`;
           fileList.append(listItem);
@@ -72,7 +72,7 @@ function loadUserFiles() {
  }
  
  // Function to delete file
- function Delete(shareable_link) {
+ function Delete(shareable_link, file_name) {
     if (confirm("Are you sure you want to delete this file?")) {
        $.ajax({
           type: 'POST',
@@ -82,7 +82,7 @@ function loadUserFiles() {
           },
           success: function (data) {
              console.log('File deleted successfully');
-             $('#' + shareable_link + "Container").empty();
+             $('#' + file_name + "Container").empty();
              displayMessage(data.message, data.success);
           },
           error: function (xhr, status, error) {
@@ -116,10 +116,10 @@ function loadUserFiles() {
  }
  
  // Function to copy shareable_link
- function copyLink(shareable_link) {
+ function copyLink(shareable_link, file_name) {
     navigator.clipboard.writeText(window.location.href + "download/" + shareable_link);
  
-    var tooltip = document.getElementById(shareable_link + "tooltip");
+    var tooltip = document.getElementById(file_name + "tooltip");
     tooltip.innerHTML = "Copied!";
  }
  
