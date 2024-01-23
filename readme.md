@@ -19,7 +19,7 @@ EasyFileShare is a lightweight Python web application hosted on Google Compute E
 
 ## Technology Stack
 
-- **Python:** The backend of EasyFileShare is powered by Python, providing a flexible and easy-to-maintain codebase.
+- **Python (Flask):** The backend of EasyFileShare is powered by Flask, providing a flexible and easy-to-maintain codebase.
 
 - **Google Compute Engine:** Hosted on Google Compute Engine for flexible and scalable application hosting.
 
@@ -41,7 +41,7 @@ EasyFileShare prioritizes security to ensure user data and files are protected:
 
 ## Automatic File Deletion
 
-To optimize storage usage, EasyFileShare automatically deletes files after three days. This ensures efficient resource management and aligns with our commitment to providing a clean and clutter-free environment for users.
+To optimize storage usage, EasyFileShare automatically deletes files after 30 days. This ensures efficient resource management and aligns with our commitment to providing a clean and clutter-free environment for users.
 
 
 ## License
@@ -50,4 +50,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## About
 
-EasyFileShare is developed and maintained by [devfemibadmus](https://github.com/devfemibadmus). For any inquiries, please contact devfemibadmus@example.com.
+EasyFileShare is developed and maintained by [devfemibadmus](https://github.com/devfemibadmus). For any inquiries, please contact devfemibadmus@gmail.com.
