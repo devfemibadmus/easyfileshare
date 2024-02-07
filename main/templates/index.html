@@ -21,24 +21,10 @@
       <link rel="canonical" href="https://easyfileshare.blackstackhub.com">
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3805485538389573"
      crossorigin="anonymous"></script>
-      <style>
-         .cloud-particle {
-            position: absolute;
-            width: 50px;
-            height: 30px;
-            background-image: url("{{ url_for('static', filename='images/easyfileshare.png') }}");
-            background-size: cover;
-         }
-      </style>
+      <style>.cloud-particle {position: absolute;width: 50px;height: 30px;background-image: url("{{ url_for('static', filename='images/easyfileshare.png') }}");background-size: cover;}</style>
    </head>
    <body id="drawing-container">
-      <div class="container">
-         <div id="message-container"></div>
-         <input type="file" id="file-input" class="pd">
-         <button onclick="uploadFile()" class="pd">Upload</button>
-         <div class="container-sm" id="file-list">
-         </div>
-      </div>
+      <div class="container"><div id="message-container"></div><input type="file" id="file-input" class="pd"><button onclick="uploadFile()" class="pd">Upload</button><div class="container-sm" id="file-list"></div></div>
       <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
       <script src="{{ url_for('static', filename='js/script.js') }}"></script>
       <script src="{{ url_for('static', filename='js/main.js') }}"></script>
