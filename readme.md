@@ -41,7 +41,7 @@ EasyFileShare prioritizes security to ensure user data and files are protected:
 
 ## Automatic File Deletion
 
-To optimize storage usage, EasyFileShare automatically deletes files after `30 days`. This ensures efficient resource management and aligns with our commitment to providing a clean and clutter-free environment for users.
+To optimize storage usage, EasyFileShare automatically deletes files after `3 days`. This ensures efficient resource management and aligns with our commitment to providing a clean and clutter-free environment for users.
 
 
 ## License
