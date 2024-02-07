@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 app = Flask(__name__, static_url_path='/static')
-max_age_seconds = 30 * 24 * 60 * 60
+max_age_seconds = 3 * 24 * 60 * 60
 class CloudStorageManager:
     def __init__(self):
         self.storage_client = storage.Client.from_service_account_json(os.path.join(BASE_DIR, "blackstackhub.json"))
