@@ -1,1 +1,147 @@
-function loadUserFiles(){$.ajax({type:"GET",url:"/get_user_files/",success:function(e){console.log("User files:",e.files),updateFileList(e.files)},error:function(){alert("Error fetching user files.")}})}function updateFileList(e){var o=$("#file-list");if(o.empty(),e.length>0){var l=$("<ol reversed></ol>");e.reverse().forEach(function(o,i){var n=e.length-i,s=`\n                         <li id="${o.file_name}Container">\n                             <div class="filename">${n}. ${o.file_name}</div>\n                             <div class="btns">\n                                 <div class="tooltip">\n                                     <button onclick="copyLink('${o.shareable_link}', '${o.file_name}')" onmouseout="outFunc('${o.file_name}')">\n                                         <span class="tooltiptext" id="${o.file_name}tooltip">Copy to clipboard</span>\n                                         Copy link\n                                     </button>\n                                 </div>\n                                 <button class="delete" onclick="Delete('${o.shareable_link}', '${o.file_name}')">Delete</button>\n                             </div>\n                         </li>`;l.append(s)}),o.append(l)}else o.text("No files found.")}function uploadFile(){var e=new FormData;e.append("file",$("#file-input")[0].files[0]),e.append("csrfmiddlewaretoken",$("[name=csrfmiddlewaretoken]").val()),displayMessage("Uploading...",""),$.ajax({type:"POST",url:"/file_upload/",data:e,processData:!1,contentType:!1,success:function(e){$("#file-input").val(""),console.log("File uploaded successfully"),displayMessage(e.message,e.success)},error:function(e,o,l){console.error("Error uploading file:",l),displayMessage("Error uploading file.",!1)}})}function Delete(e,o){confirm("Are you sure you want to delete this file?")&&$.ajax({type:"POST",url:"/file_delete/"+e+"/",data:{csrfmiddlewaretoken:$("[name=csrfmiddlewaretoken]").val()},success:function(e){console.log("File deleted successfully"),$("#"+o+"Container").empty(),displayMessage(e.message,e.success)},error:function(e,o,l){console.error("Error deleting file:",l),displayMessage("Error deleting file.",!1)}})}function displayMessage(e,o){var l=$("#message-container");l.text(e),""==o||(1!=o?(l.css("color","red"),loadUserFiles()):(l.css("color","green"),loadUserFiles())),"Uploading..."===e||setTimeout(function(){l.empty().removeAttr("style")},2e3)}function copyLink(e,o){navigator.clipboard.writeText(window.location.href+"download/"+e),document.getElementById(o+"tooltip").innerHTML="Copied!"}function outFunc(e){document.getElementById(e+"tooltip").innerHTML="Copy to clipboard"}function checkCookies(){localStorage.getItem("hasAcceptedCookies")||(alert("We use cookies for a better user experience. Visit github.com/devfemibadmus/easyfileshare to learn more."),localStorage.setItem("hasAcceptedCookies",!0))}checkCookies(),loadUserFiles();
+// Function to fetch and display user files
+function loadUserFiles() {
+    $.ajax({
+       type: 'GET',
+       url: '/get_user_files/',
+       success: function (data) {
+          console.log('User files:', data.files);
+          updateFileList(data.files);
+       },
+       error: function () {
+          alert('Error fetching user files.');
+       }
+    });
+ }
+ 
+ // Function to update the file list on the page
+ function updateFileList(files) {
+    var fileListContainer = $('#file-list');
+    fileListContainer.empty();
+ 
+    if (files.length > 0) {
+       var fileList = $('<ol reversed></ol>');
+ 
+       files.reverse().forEach(function (file, index) {
+          // Calculate the displayed index (accounting for reversed order)
+          var displayedIndex = files.length - index;
+ 
+          var listItem = `
+                         <li id="${file.file_name}Container">
+                             <div class="filename">${displayedIndex}. ${file.file_name}</div>
+                             <div class="btns">
+                                 <div class="tooltip">
+                                     <button onclick="copyLink('${file.shareable_link}', '${file.file_name}')" onmouseout="outFunc('${file.file_name}')">
+                                         <span class="tooltiptext" id="${file.file_name}tooltip">Copy to clipboard</span>
+                                         Copy link
+                                     </button>
+                                 </div>
+                                 <button class="delete" onclick="Delete('${file.shareable_link}', '${file.file_name}')">Delete</button>
+                             </div>
+                         </li>`;
+          fileList.append(listItem);
+       });
+ 
+       fileListContainer.append(fileList);
+    } else {
+       fileListContainer.text('No files found.');
+    }
+ }
+ 
+ // Function to handle file upload
+ function uploadFile() {
+    var formData = new FormData();
+    formData.append('file', $('#file-input')[0].files[0]);
+    formData.append('csrfmiddlewaretoken', $('[name=csrfmiddlewaretoken]').val());
+    displayMessage("Uploading...", "")
+    $.ajax({
+       type: 'POST',
+       url: '/file_upload/',
+       data: formData,
+       processData: false,
+       contentType: false,
+       success: function (data) {
+          $("#file-input").val("");
+          console.log('File uploaded successfully');
+          displayMessage(data.message, data.success);
+       },
+       error: function (xhr, status, error) {
+          console.error('Error uploading file:', error);
+          displayMessage('Error uploading file.', false);
+       }
+    });
+ }
+ 
+ // Function to delete file
+ function Delete(shareable_link, file_name) {
+    if (confirm("Are you sure you want to delete this file?")) {
+       $.ajax({
+          type: 'POST',
+          url: '/file_delete/' + shareable_link + '/',
+          data: {
+             'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val(),
+          },
+          success: function (data) {
+             console.log('File deleted successfully');
+             $('#' + file_name + "Container").empty();
+             displayMessage(data.message, data.success);
+          },
+          error: function (xhr, status, error) {
+             console.error('Error deleting file:', error);
+             displayMessage('Error deleting file.', false);
+          },
+       });
+    }
+ }
+ 
+ // Function to display messages on the page
+ function displayMessage(message, success) {
+    var messageContainer = $('#message-container');
+    messageContainer.text(message);
+    if (success == "") {
+      //
+    } else if (success != true) {
+       messageContainer.css('color', 'red');
+       loadUserFiles();
+    } else {
+       messageContainer.css('color', 'green');
+       loadUserFiles();
+    }
+    if (message === "Uploading..."){
+      //
+    } else{
+    setTimeout(function () {
+      messageContainer.empty().removeAttr('style');
+   }, 2000);
+    }
+ }
+ 
+ // Function to copy shareable_link
+ function copyLink(shareable_link, file_name) {
+    navigator.clipboard.writeText(window.location.href + "download/" + shareable_link);
+ 
+    var tooltip = document.getElementById(file_name + "tooltip");
+    tooltip.innerHTML = "Copied!";
+ }
+ 
+ // Function to display tooltip
+ function outFunc(id) {
+    var tooltip = document.getElementById(id + "tooltip");
+    tooltip.innerHTML = "Copy to clipboard";
+ }
+ 
+ // Function to cookies
+ function checkCookies() {
+   const hasAcceptedCookies = localStorage.getItem('hasAcceptedCookies');
+   if (!hasAcceptedCookies) {
+     alert("We use cookies for a better user experience. Visit github.com/devfemibadmus/easyfileshare to learn more.");
+     localStorage.setItem('hasAcceptedCookies', true);
+   }
+ }
+ 
+ // Call the function when the page loads
+ checkCookies();
+ 
+ // Call loadUserFiles when the page loads
+ loadUserFiles();
+ 
+ 
