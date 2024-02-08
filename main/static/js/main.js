@@ -2,7 +2,7 @@
 function loadUserFiles() {
     $.ajax({
        type: 'GET',
-       url: '/get_user_files/',
+       url: 'get_user_files/',
        success: function (data) {
           console.log('User files:', data.files);
           updateFileList(data.files);
@@ -55,7 +55,7 @@ function loadUserFiles() {
     displayMessage("Uploading...", "")
     $.ajax({
        type: 'POST',
-       url: '/file_upload/',
+       url: 'file_upload/',
        data: formData,
        processData: false,
        contentType: false,
@@ -76,7 +76,7 @@ function loadUserFiles() {
     if (confirm("Are you sure you want to delete this file?")) {
        $.ajax({
           type: 'POST',
-          url: '/file_delete/' + shareable_link + '/',
+          url: 'file_delete/' + shareable_link + '/',
           data: {
              'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val(),
           },
