@@ -3,6 +3,8 @@ import requests, os, json, uuid, io
 from google.cloud import storage
 from pathlib import Path
 from PIL import Image
+import random
+import string
 from io import BytesIO
 from PIL import Image, ImageDraw
 
@@ -36,6 +38,11 @@ class CloudStorageManager:
         return False
 
 manager = CloudStorageManager()
+def generate_random_length_id(min_length=4, max_length=6):
+    characters = string.ascii_letters + string.digits  # a-z, A-Z, 0-9
+    length = random.randint(min_length, max_length)
+    return ''.join(random.choices(characters, k=length))
+
 
 @app.route('/')
 def home():
@@ -43,7 +50,7 @@ def home():
 
 @app.route('/get_user_files/')
 def get_user_files():
-    user_id = request.cookies.get('user_id', str(uuid.uuid4()))
+    user_id = request.cookies.get('user_id', generate_random_length_id())
     # print(user_id)
  
     user_files_cookie = request.cookies.get('user_files', '[]')
@@ -59,7 +66,7 @@ def get_user_files():
 @app.route('/file_upload/', methods=['POST'])
 def file_upload():
     try:
-        user_id = request.cookies.get('user_id', str(uuid.uuid4()))
+        user_id = request.cookies.get('user_id', generate_random_length_id())
         file_upload = request.files.get('file')
         if not file_upload:
             raise ValueError("File is empty.")
@@ -96,7 +103,7 @@ def file_upload():
 
 @app.route('/file_delete/<user_id>/<file_name>/', methods=['POST'])
 def file_delete(user_id, file_name):
-    user_id = request.cookies.get('user_id', str(uuid.uuid4()))
+    user_id = request.cookies.get('user_id', generate_random_length_id())
     print(user_id)
     user_files_cookie = request.cookies.get('user_files', '[]')
     user_files = json.loads(user_files_cookie)
