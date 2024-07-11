@@ -1,11 +1,7 @@
 from flask import Flask, render_template, request, jsonify, make_response, Response, send_file
-import requests, os, json, uuid, io
+import requests, os, json, random, string
 from google.cloud import storage
 from pathlib import Path
-from PIL import Image
-import random
-import string
-from io import BytesIO
 from PIL import Image, ImageDraw
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -163,8 +159,8 @@ def download_file(file_url, file_name, raw):
 def catch_all(path):
     return render_template("lost.html", value="You Lost But Found")
 
-"""
 if __name__ == '__main__':
     app.run(debug=True)
-"""
+
 application = app
+
